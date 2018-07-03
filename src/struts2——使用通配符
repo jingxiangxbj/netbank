@@ -1,0 +1,78 @@
+struts2的配置文件是 struts.xml.. 在struts.xml文件中配置<action…>元素时，它的name、class、method属性都可支持通配符，这种通配符的方式是另一种形式的动态方法调用。
+在这个配置文件里面可以使用通配符..其中的好处就是,大大减少了配置文件的内容..当然,相应付出的代价是可读性..
+使用通配符的原则是 约定高于配置.
+在项目中,我们有很多的命名规则是约定的...我们使用通配符那就必须有一个统一的约定.否则通配符将无法成立
+看下面的例子.
+(1)先看我们的action配置
+ <package name="user" extends="struts-default" namespace="/"> 此时namespace 为空
+ 
+  <action name="user_*" class="com.test.action.UserAction" method="{1}">
+   <result>/user_{1}.jsp</result>
+  </action>
+ </package>
+带红字的解释下,第一个带"*" 表示的是 后面匹配任意字符...这个很容易理解
+{1}表示的是第一个"*"的内容...注意,这里的大括号,比如,如果是user_add .那么{1}就是表示 add ..
+当然,这里只有一个"*".你可以有两个,甚至三个四个..比如这样写 *_* 这样就是两个"*" .{1}、{2}表示第一第二个占位符，那么我们也可以用{1}第一个通配符,{2}第二个通配符来分别的表示他们.
+(2) 对应的action 内容
+package com.test.action;
+import com.opensymphony.xwork2.ActionSupport;
+@SuppressWarnings("serial")
+public class UserAction extends ActionSupport
+{
+ public String add()
+ {
+  return SUCCESS;
+ }
+ public String delete()
+ {
+  return SUCCESS;
+ }
+ public String update()
+ {
+  return SUCCESS;
+ }
+ public String select()
+ {
+  return SUCCESS;
+ }
+}
+因为是举例子,所以每个方法里面都没实现内容.
+(3) 其他就是几个jsp页面..
+struts2--配置文件中使用通配符 - jingbo2759 - 馒头的java学习经历
+其中 user_*.jsp页面没什么好说的,就是显示一句话.比如user_add.jsp就是显示 "这是添加页面" 其他的类似.就是为了让我们看到已经跳转到对应的页面.
+index.jsp写一下
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <base href="<%=basePath%>">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+ <a href="user_add.action">添加页面</a><br>
+ 此时namespace为空 假如namespace=bb则href="bb/user_delete.action"
+ <a href="user_delete.action">删除页面</a><br>
+ <a href="user_update.action">修改页面</a><br>
+ <a href="user_select.action">查找页面</a><br>
+</body>
+</html>
+这里需要解释的就是两个
+(1)<base>标签的作用是,指定下面所有相对路径的基地址..看下面的图示
+struts2--配置文件中使用通配符 - jingbo2759 - 馒头的java学习经历
+(2)下面的红字是几个链接.分别连接到四个action..这里是四个相对路径.基路径就是上面设置的basePath..
+注意,jsp默认的路径是服务基路径..也就是 htttp://localhost:8080/ 也就是说,不包括项目名.
+ 
+总结一下,
+大家可以看到,配置文件里面,只有三句话就将增删改查四个操作全部配置好了....这就是通配符的作用.但是,我们也可以看到,对应的命名规则的约定也非常的苛刻...
+最后需要注意的一点是匹配的优先权
+ (1)如果struts.xml里面有对应的action name .就算它有其他通配符匹配的,都优先对应完全相同的.
+比如 有一个 action name 是 "user_add"  还有一个是 "user_*" .现在,来一个请求是 "user_add.action " .那么,它会优先匹配"user_add " ..其实,这个很好理解..
+(2)如果一个action name对应于两个带通配符的action name 那么,需要看这个配置谁在前面.它匹配写在前面的
+比如 有一个 action name 是 "*_*"  还有一个是 "user_*" .现在,来一个请求是 "user_add.action " .那么,它会优先匹配写在前面的...
+任何带"*"的action name 优先权都是一样的...不是说带一个"*"的优先权就比带两个"*" 的高.

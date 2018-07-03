@@ -1,0 +1,59 @@
+(1)先看我们的action配置
+ <package name="user" extends="struts-default" namespace="/">
+  <action name="user_*" class="com.test.action.UserAction" method="{1}">
+   <result>/user_{1}.jsp</result>
+  </action>
+ </package>
+带红字的解释下,第一个带"*" 表示的是 后面匹配任意字符...这个很容易理解
+{1}表示的是第一个"*"的内容...注意,这里的大括号,比如,如果是user_add .那么{1}就是表示 add ..
+当然,这里只有一个"*".你可以有两个,甚至三个四个..比如这样写 *_* 这样就是两个"*" .那么我们也可以用{1},{2}来分别的表示他们.
+2) 对应的action 内容
+package com.test.action;
+import com.opensymphony.xwork2.ActionSupport;
+@SuppressWarnings("serial")
+public class UserAction extends ActionSupport
+{
+ public String add()
+ {
+  return SUCCESS;
+ }
+ public String delete()
+ {
+  return SUCCESS;
+ }
+ public String update()
+ {
+  return SUCCESS;
+ }
+ public String select()
+ {
+  return SUCCESS;
+ }
+}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <base href="<%=basePath%>">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+ <a href="user_add.action">添加页面</a><br>
+ <a href="user_delete.action">删除页面</a><br>
+ <a href="user_update.action">修改页面</a><br>
+ <a href="user_select.action">查找页面</a><br>
+</body>
+</html>
+
+(2)下面的红字是几个链接.分别连接到四个action..这里是四个相对路径.基路径就是上面设置的basePath..
+注意,jsp默认的路径是服务基路径..也就是 htttp://localhost:8080/ 也就是说,不包括项目名.
+ 
+总结一下,
+大家可以看到,配置文件里面,只有三句话就将增删改查四个操作全部配置好了....这就是通配符的作用.但是,我们也可以看到,对应的命名规则的约定也非常的苛刻...
+最后需要注意的一点是匹配的优先权
+ (1)如果struts.xml里面有对应的action name .就算它有其他通配符匹配的,都优先对应完全相同的.
+比如 有一个 action name 是 "user_add"  还有一个是 "user_*" .现在,来一个请求是 "user_add.action " .那么,它会优先匹配"user_add " ..其实,这个很好理解..
+(2)如果一个action name对应于两个带通配符的action name 那么,需要看这个配置谁在前面.它匹配写在前面的
+比如 有一个 action name 是 "*_*"  还有一个是 "user_*" .现在,来一个请求是 "user_add.action " .那么,它会优先匹配写在前面的...
+任何带"*"的action name 优先权都是一样的...不是说带一个"*"的优先权就比带两个"*" 的高.

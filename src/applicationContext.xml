@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-3.1.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd	
+	http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+	>
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"
+			value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/bank"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="123456789"></property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+			</props>
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>
+					com/netbank/entity/TransactionType.hbm.xml
+				</value>
+				<value>com/netbank/entity/Account.hbm.xml</value>
+				<value>com/netbank/entity/TransactionLog.hbm.xml</value>
+				<value>com/netbank/entity/Personinfo.hbm.xml</value>
+				<value>com/netbank/entity/Status.hbm.xml</value>
+				<value>com/netbank/entity/Admin.hbm.xml</value></list>
+		</property>
+	</bean>
+	<!--开启注解处理器  -->
+	 <!-- Spring注解原理的详细剖析与实现 http://freewxy.iteye.com/blog/1149128/ -->
+	<context:annotation-config/>
+   
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<!-- 基于@Transactional注解方式的事务管理 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+		
+	<!-- 使用原型模式定义UserAction类，UserAction类的属性通过Annotation注解方式注入 -->
+	<!-- scope="prototype" spring 默认scope 是单例模式这样只会创建一个Action对象每次访问都
+	是同一个Action对象，数据不安全struts2 是要求 每次次访问 都对应不同的Action scope="prototype"
+	 可以保证 当有请求的时候 都创建一个Action对象可以利用容器的scope="prototype"来保证每一个请求有一
+	 个单独的Action来处理，		避免struts中Action的线程安全问题。这句话怎么理解呢如果用单例方式会有什么样的结果呢 
+	 如果采用单例模式，那么STRUTS从前台得到的数据，经过处理结束后，再次进入该页面时，前一次提交的数据还是会被保留下来。
+例如：查询系统中的用户：用户名为a 用户类型为普通类型，第一次请求结束后，再进入查询页面时，系统会保留前一次的查询条件。
+	 
+	 -->
+	<bean name="user" class="com.netbank.action.UserAction" scope="prototype"/>
+	
+	<bean name="file" class="com.netbank.action.FileAction" scope="prototype"/>
+	
+	<!-- 使用原型模式定义PersoninfoAction类，PersoninfoAction类的属性通过Annotation注解方式注入 -->
+	<bean name="personinfo" class="com.netbank.action.PersoninfoAction" scope="prototype"/>
+	
+	<!-- 使用原型模式定义AdminAction类，AdminAction类的属性userBiz和personinfoBiz通过Annotation注解方式注入 -->
+	<bean name="admin" class="com.netbank.action.AdminAction" scope="prototype" />
+	
+	
+	<!-- 使用原型模式定义Transaction类,并给属性 userBiz和transactionBiz注入值-->
+    <bean name="transaction" class="com.netbank.action.Transaction" scope="prototype">
+	    <property name="userBiz" ref="userBiz"></property>
+	    <property name="transactionBiz" ref="transactionBiz"></property>
+	</bean>
+	
+	
+	<!-- 定义UserDaoImpl，并给类中的sessionFactory属性注入值 -->
+	<bean id="userDao" class="com.netbank.dao.impl.UserDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 定义UserBizImpl，并给其属性userDao注入实例 -->
+	<bean id="userBiz" class="com.netbank.biz.impl.UserBizImpl">
+	   <property name="userDao" ref="userDao"></property>
+	</bean>
+	
+	<!-- 定义PersoninfoDaoImpl，并给类中的sessionFactory属性注入值 -->
+	<bean id="personinfoDao" class="com.netbank.dao.impl.PersoninfoDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 定义PersoninfoBizImpl，并给其属性personinfoDao和userDao注入Bean实例 -->
+	<bean id="personinfoBiz" class="com.netbank.biz.impl.PersoninfoBizImpl">
+		<property name="personinfoDao" ref="personinfoDao"></property>
+		<property name="userDao" ref="userDao"></property>
+	</bean>
+	
+	<!-- 定义TransactionDaoImpl，并给类中的sessionFactory属性注入值 -->
+	<bean id="transactionDao" class="com.netbank.dao.impl.TransactionDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>	
+	
+	<!-- 定义TransactionBizImpl，并给其属性transactionDao和userDao注入Bean实例 -->
+	<bean id="transactionBiz" class="com.netbank.biz.impl.TransactionBizImpl">
+		<property name="transactionDao" ref="transactionDao"></property>
+		<property name="userDao" ref="userDao"></property>
+	</bean>	
+
+	
+</beans>

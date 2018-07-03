@@ -1,0 +1,134 @@
+http://www.cnblogs.com/limeiky/p/5302306.html
+iterator标签主要是用于迭代输出集合元素,如list set map 数组等,在使用标签的时候有三个属性值得我们关注
+
+1. value属性:可选的属性,value属性是指一个被迭代的集合,使用ognl表达式指定,如果为空的话默认就是ValueStack栈顶的集合.
+2.id属性:可选属性, 是指集合元素的id
+3.status属性:可选属性,该属性在迭代时会产生一个IteratorStatus对象,该对象可以判断当前元素的位置,包含了以下属性方法:
+
+int getCount(); 迭代元素个数
+
+int getIndex(); 迭代元素当前索引
+
+boolean getFirst(); 是否为第一个
+
+boolean getEven(); 是否为偶
+
+boolean getLast(); 是否最后一个
+
+bolean getOdd(); 是否为奇
+
+ 
+
+由于iteratorstatus对象并不是ognl的根对象,因此访问需要加上#访问，如下例子:
+
+<s:iterator value=”{’dd’,'bb’,'cc’}” status=”st”>
+
+<s:if test=”#st.odd”>
+
+<s:property value=”#st.index”/>
+
+</s:if>
+
+</s:iterator>
+
+此外:iterator也可以迭代map对象,map对象中有几对key-value 就迭代几次,分别使用
+<s:property value=”key”/>
+<s:property value=”value”/>
+
+输出即可.
+
+ 
+
+案例如下（Struts2标签）：实现奇偶行不同颜色显示
+
+JSP中结果集显示如下：
+<s:iterator value="resultList" status="status">
+<tr class="<s:if test="#status.even">row-even</s:if><s:else>row-odd</s:else>">
+<td>
+<s:property value=""/>
+</td>
+</tr>
+</s:iterator>
+
+
+样式表可以参考：
+.row-even{background-color:#def7c2;}
+.row-odd{background-color:#c8e7a6;}
+
+除了使用#status.even判断是否偶数行外，还有其他几个属性可以使用：
+#status.odd 是否奇数行
+#status.count 当前行数
+#status.index 当前行的序号，从0开始[#status.count=#status.index+1]
+#status.first 是否第一行
+#status.last 是否最后一行
+#status.modules(int) 当前行数取模
+
+ 
+
+1:jsp页面定义元素写法 数组或list
+
+
+<s:iterator value="{'1','2','3','4','5'}" id='number'>
+    <s:property value='number'/>A
+</s:iterator>
+打印结果为: 1A2A3A4A5A
+
+2:索引的用法
+如果指定了status，每次的迭代数据都有IteratorStatus的实例，它有以下几个方法
+
+<s:iterator 中的status 使用方法
+
+1：#status.odd 当前元素索引是否奇数行
+
+2：#status.even 当前元素索引是否偶数
+行
+
+3：#status.count 当前迭代了几个元素
+4：#status.index 当前元素索引，从0开始『#status.count=#status.index+1』
+
+5：#status.first 当前是否第一个元素
+6：#status.last 当前是否最后一个元素
+7：#status.modules(int) 当前行数取模   
+
+ 
+
+<s:iterator value="{'a','b','c'}" id='char' status='st'>
+    <s:if test="#st.Even">
+        现在的索引是奇数为:<s:property value='#st.index'/>
+    </s:if>
+    当前元素值：<s:property value='char'/>
+</s:iterator>
+3：遍历map
+value可以直接定义为：
+
+value="#{"1":"a","2":"b"}"
+每个元素以都好隔开。元素之间的key和value 冒号隔开
+value也可以是数据栈里面的java.util.Map对象
+遍历写法如下：
+
+<s:iterator value="map" id="id" status="st">
+     key : <s:property value='key'/>
+     value:<s:property vlaue='value'/>
+</s:iterator>
+当然key 和value 都可以使java 的 Object
+
+3：遍历数据栈.简单的List类，
+List<Attr>
+class Attr{String attrName;String getAttrName(){return "123";}}
+
+<s:iterator value="label" id="id">
+    <s:property value="#id.attrName" />
+</s:iterator>
+当然value 还可以写成 value="%{label}" label可以有.操作
+label的属性List 可以写成value="%{label.list}" 相当于：getLabel().getList();
+
+4：遍历2个list；
+List<AttrName> attrN {color,size,style}
+List<AttrValue> attrV {red,20,gay}
+这2个list的元素是一一对应的，一个attrN对应一个attrV
+
+<s:iterator value="%{attrN }" id="id"   status="status">
+index    is : <s:property value='status.index'/>
+attrName is : <s:property value='id'/> or <s:property value='%{id}'/>
+attrName is : <s:property value='%{attrV[#status.index]}'/>
+</s:iterator> 

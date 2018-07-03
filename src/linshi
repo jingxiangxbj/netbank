@@ -1,0 +1,52 @@
+<!-- 定义一个名称为user的包" -->
+	<package name="1" extends="struts-default">
+	    <!-- 使用通配符实现动态方法调用 -->
+		<action name="user_*" class="user" method="{1}">
+			<result name="success">/index.jsp</result>
+			<result name="login">/login.jsp</result>
+			<result name="input">/login.jsp</result>
+		</action>
+		<!-- 为UserAction类中的changepwd方法配置映射 -->
+		<action name="changepwd" class="user" method="changepwd">
+			<result name="input">/changepwd.jsp</result>
+			<result name="message">/message.jsp</result>
+			<!--<interceptor-ref name="roleStack"/>-->
+		</action>
+	</package>
+    
+    
+    <!-- 定义一个名称为transaction的包" -->
+    <package name="2"  extends="struts-default">
+    	<!--<default-interceptor-ref name="roleStack"/>-->
+    	<!-- 为Transaction类中list方法配置映射 -->
+   		<action name="list" class="transaction" method="list">
+    		<result name="success">/transactionlog.jsp</result>
+    	</action>
+    	<!-- 为Transaction类中transfer方法配置映射 -->
+   		<action name="transfer" class="transaction" method="transfer">
+    		<result name="input">/transfer.jsp</result>
+    		<result name="message">/message.jsp</result>
+    	</action>
+    	<!-- 为Transaction类中deposit方法配置映射 -->
+		<action name="deposit" class="transaction" method="deposit">
+		    <result name="input">/deposit.jsp</result>
+		    <result name="message">/message.jsp</result>
+    	</action>
+    	<!-- 为Transaction类中withdrawal方法配置映射 -->
+    	<action name="withdrawal" class="transaction" method="withdrawal">
+		<result name="input">/withdrawal.jsp</result>
+		<result name="message">/message.jsp</result>
+    	</action>
+    </package>
+    
+      <!-- 定义一个名称为info的包 -->
+      <package name="3" extends="struts-default">
+      	<!--  <default-interceptor-ref name="roleStack"/>-->
+      	<!-- 使用通配符实现动态方法调用 -->
+   		<action name="info_*" class="personinfo" method="{1}">
+    		<result name="login">/login.jsp</result>
+    		<result name="input">/modify.jsp</result>
+    		<result name="message">/message.jsp</result>
+    		<!--<interceptor-ref name="roleStack"/>-->
+    	</action>
+    </package>

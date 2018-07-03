@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN"
+ "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<!-- <constant name="struts.enable.DynamicMethodInvocation" value="true" />
+    <constant name="struts.devMode" value="true" />
+	<constant name="struts.i18n.encoding" value="UTF-8"/>
+	<constant name="struts.objectFactory" value="spring"/>
+	<constant name="struts.configuration.xml.reload" value="true"></constant>
+   <include file="struts-file.xml"/>  -->
+   
+   
+		<package name="users" namespace="/user" extends="struts-default">
+		<!-- 这个namespace="" 不能有值 ，因为当用户输入错误再次输入时 用户提交时的空间 其实还是这个空间 （第一次进这个空间后 没有退出来  第二次还在这个空间），所以
+		如果 加上空间名称的话 在第二次提交时 会出现在这个空间里面 又从这个空间进到这个空间找action的空间名称重复错误。解决办法：namespace="" 写空，用户登录
+		<form method="post" action="user_login" onsubmit="return check()">	  -->
+			<action name="user_*" class="user" method="{1}">
+					<result name="success">/index.jsp</result>	
+					<result name="login">/login.jsp</result>
+			        <result name="input">/login.jsp</result>
+			        <!-- 
+			        SUCCESS: action正确的执行完成 返回相应的视图  他是name属性的默认值
+			        none  :表示action 正确执行完成 但不返回任何视图
+			        error: 表示action 执行失败 返回到错误处理视图
+			        input： 表示action 的执行 需要从前端界面获取参数 input 就是代表 这个参数输入 的界面，一般在应用中会对这些参数进行验证
+			        		如果验证么有通过 蒋自动返回该视图。
+			        login ： action 因为用户没有登录的原因 没有正确执行 将返回该视图 要求用户进行登录验证。
+			         -->		
+			</action>
+			<action name="changepwd" class="user" method="changepwd">
+					<result name="input">/changepwd.jsp</result>
+			        <result name="message">/message.jsp</result>
+			</action>
+		</package>
+     
+  <!--   定义一个名称为user的包"
+	<package name="user" namespace="/user" extends="struts-default">
+	    使用通配符实现动态方法调用
+		<action name="user_*" class="user" method="{1}">
+			<result name="success">/index.jsp</result>
+			<result name="login">/login.jsp</result>
+			<result name="input">/login.jsp</result>
+		</action>
+		为UserAction类中的changepwd方法配置映射
+		<action name="changepwd" class="user" method="changepwd">
+			<result name="input">/changepwd.jsp</result>
+			<result name="message">/message.jsp</result>
+			<interceptor-ref name="roleStack"/>
+		</action>
+	</package> -->
+    
+     
+     <package name=""  namespace="/admin" extends="struts-default">
+        <!-- 使用通配符与动态值配置AdminAction -->
+   		<action name="*" class="admin" method="{1}">
+    		<result name="login">/login.jsp</result>
+    		<result name="users">/admin/users.jsp</result>
+    		<result name="add">/admin/add.jsp</result>
+    		<result name="input">/message.jsp</result>
+    		<result name="message">/message.jsp</result>
+    		<!-- 将请求重定向到别的Action，相当于重新发起一次请求，并携带请求参数 -->
+    		<result name="list" type="redirectAction">
+    			<param name="actionName">listUsersAdminActionfangfa</param>
+    			<param name="status.id">${status.id}</param>
+    		</result>
+    	</action>
+    	<!-- 为AdminAction类中login方法配置映射 -->
+    	<action name="login" class="admin" method="login">
+    	<!--<result name="success" >manage.jsp</result> 此时指WebRoot下的admin（ namespace="/admin"） 文件夹里面的manager.jsp文件 -->
+    		<result name="success" >manage.jsp</result>
+    		<!-- 因为namespace="/admin" 所以 所有的jsp都指admin包下的jsp，但是
+    		在jsp路径前面加上/就是指WebRoot 下的大路径了 -->
+    		<result name="input">/login.jsp</result>
+    		<!--/login.jsp 由于加了/ 号 所以指WebRoot 下的文件了  -->
+    	</action>
+     </package>
+   
+   
+    <!-- 定义一个名称为transaction的包" -->
+      <package name="transaction" namespace="/transaction" extends="struts-default">
+    	<!--<default-interceptor-ref name="roleStack"/>-->
+    	<!-- 为Transaction类中list方法配置映射 -->
+   		<action name="list" class="transaction" method="list">
+    		<result name="success">/transactionlog.jsp</result><!--/transactionlog.jsp 由于加了/ 号 所以指WebRoot 下的文件了  -->
+    	</action>
+    	<!-- 为Transaction类中transfer方法配置映射 -->
+   		<action name="transfer" class="transaction" method="transfer">
+    		<result name="input">/transfer.jsp</result>
+    		<result name="message">/message.jsp</result>
+    	</action>
+    	<!-- 为Transaction类中deposit方法配置映射 -->
+		<action name="deposit" class="transaction" method="deposit">
+		    <result name="input">/deposit.jsp</result>
+		    <result name="message">/message.jsp</result>
+    	</action>
+    	<!-- 为Transaction类中withdrawal方法配置映射 -->
+    	<action name="withdrawal" class="transaction" method="withdrawal">
+		<result name="input">/withdrawal.jsp</result>
+		<result name="message">/message.jsp</result>
+    	</action>
+    </package>
+    
+   
+   
+  
+     
+     
+     
+     
+     
+    
+      <!-- 定义一个名称为info的包 -->
+      <package name="info" namespace="/info" extends="struts-default">
+      	<!--  <default-interceptor-ref name="roleStack"/>-->
+      	<!-- 使用通配符实现动态方法调用 -->
+   		<action name="info_*" class="personinfo" method="{1}">
+    		<result name="login">/login.jsp</result>
+    		<result name="input">/modify.jsp</result>
+    		<result name="message">/message.jsp</result>
+    		<!--<interceptor-ref name="roleStack"/>-->
+    	</action>
+    </package>
+	
+</struts>    

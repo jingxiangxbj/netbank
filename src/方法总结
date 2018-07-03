@@ -1,0 +1,42 @@
+
+返回值Admin 方法getAdmin(String usename)  给的值是username;
+				获取session和query后，query=session.createQuery("from Admin where usernane='"+username+"'");
+				返回： return（Admin）query.uniqueResult();
+
+返回值Status 方法getStatus（String name） 给的是name；
+				获取session和query后，query=session.createQuery（“from Status where name='"+name+"'”）；
+				返回：return (Status)query.uniqueResult();
+
+返回值Status 方法getStatus（int id） 给的值是id;
+				获取session后
+				返回：return （Status）session.get(Status.class,id);
+返回值Account 方法getAccount(int id) 给的值是id 
+				获取session后
+				返回：return （Account） session.get(Account.class,id);
+
+
+
+
+
+增加   方法addAccount（Account account）;
+				获取session后
+				session.save（account）;
+
+
+
+删除 方法 delAccount（Account account）;
+					获取session后
+					session.delete(account);
+
+
+
+修改 方法  xiuGai(Admin admin) 值 admin 
+				获取session后
+				session.update(admin);
+
+
+
+更新 方法 updateAccount（Account account）；
+				获取session后
+				session.merge(account)
+				
